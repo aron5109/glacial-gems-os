@@ -37,6 +37,10 @@ It contains no executable code and is not deployed.
 Documentation lives under the `docs/` directory and is organized by topic
 (e.g. operations, finance, policies, tasks).
 
+## Infrastructure
+
+- [Infrastructure Overview](docs/operations/infrastructure-overview.md)
+
 ## Status
 This OS is intentionally lightweight and evolving.
 Clarity and correctness are prioritized over completeness.

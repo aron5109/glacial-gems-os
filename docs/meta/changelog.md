@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-02-18
+
+### 2026-02-18 — Infrastructure Overview Created
+- Added authoritative infrastructure-overview.md
+- Documented VPS, Docker networks, Caddy routing, WordPress store architecture, NocoDB/Postgres, OpenClaw + Slack/Telegram integration.
+
 ## 2026-02-17
 - Structural refactor — added brands and virtual-staff base system. No deletions performed.
 - Created docs/virtual-staff/ with global virtual staff documentation

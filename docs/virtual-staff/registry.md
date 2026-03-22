@@ -12,21 +12,26 @@
 
 ### Leadership Roles
 
-- **Operations Manager** - Oversees operational processes and efficiency
-- **Accountant** - Manages financial tracking and reporting
-- **Archivist** - Maintains documentation and knowledge management
-- **Policy Manager** - Ensures compliance and policy adherence
+| Agent ID  | Name              | Role               | Model               |
+|-----------|-------------------|--------------------|---------------------|
+| main      | (coordinator)     | General coordinator| claude-haiku-4-5    |
+| ops       | Kjartan Már       | Operations Manager | claude-sonnet-4-6   |
+| finance   | Alda Sofía        | Accountant         | claude-sonnet-4-6   |
+| archivist | Baldur            | Archivist          | claude-sonnet-4-6   |
+| policy    | Selma             | Policy Manager     | claude-sonnet-4-6   |
+| strategy  | Rakel Jónsdóttir  | Strategy Planner   | claude-sonnet-4-6   |
+| coder     | Coder (Qwen)      | Software Engineer  | qwen2.5-coder:1.5b  |
+
+All agents share the `glacial` Hindsight memory bank for cross-agent learning.
 
 ## Brand-Specific Virtual Staff
 
 ### women.is (Online Shop)
-
 - Marketing Assistant
 - Customer Support Assistant
 - Product Research Assistant
 
 ### lisadigiglio.com (Photography)
-
 - Social Media Assistant
 - Lead Response Assistant
 - Editing Workflow Assistant

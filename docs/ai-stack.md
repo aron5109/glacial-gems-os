@@ -153,3 +153,39 @@ cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.bak-$(date +%Y%m%d)
 |---|---|
 | `aron5109/openclaw-workspace` | Agent workspace, model policy, skills, heartbeat |
 | `aron5109/glacial-gems-os` | Company OS, documentation, SOPs (this repo) |
+
+---
+
+## Hindsight Memory System
+
+- UI: http://185.230.138.60:5173/banks/glacial?view=data
+- Internal API: `http://hindsight-api:8888` (from within Docker networks)
+- External API: `http://127.0.0.1:6969` (from VPS host)
+- Docker network: `hindsight_hindsight-net`
+- Containers: `hindsight-api` (172.22.0.2), `hindsight-db`
+- Banks: `glacial` (main shared), `naggon`, `skill-collection`
+
+### Sandbox → Hindsight access
+Agent sandboxes are on `hindsight_hindsight-net` (configured in `openclaw.json`).
+Sandbox has no curl/python3 — use perl socket:
+```perl
+perl -e '
+use Socket;
+socket(my $s, PF_INET, SOCK_STREAM, getprotobyname("tcp"));
+connect($s, sockaddr_in(8888, inet_aton("hindsight-api")));
+$s->autoflush(1);
+print $s "GET /v1/default/banks HTTP/1.0\r\nHost: hindsight-api\r\nConnection: close\r\n\r\n";
+while(<$s>){print}
+'
+```
+
+### openclaw.json sandbox config
+```json
+{
+  "mode": "non-main",
+  "docker": {
+    "network": "hindsight_hindsight-net",
+    "setupCommand": "apt-get install -y -q curl jq python3 2>/dev/null"
+  }
+}
+```

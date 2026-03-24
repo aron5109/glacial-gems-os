@@ -230,3 +230,33 @@ docker inspect hindsight-api | python3 -c "import json,sys; print(json.load(sys.
   }
 }
 ```
+
+---
+
+## Agent Roster
+
+| Agent ID | Name | Role | Model |
+|---|---|---|---|
+| main | (unnamed) | Coordinator / router | Step 3.5 Flash (free) |
+| ops | Kjartan Már | Infrastructure & operations | Sonnet 4.6 |
+| finance | Alda Sofía | Accountant / budget tracking | Sonnet 4.6 |
+| archivist | Baldur | Records, docs, memory governance | Sonnet 4.6 |
+| policy | Selma | Security & compliance | Sonnet 4.6 |
+| strategy | Rakel Jónsdóttir | Long-term planning & roadmap | Sonnet 4.6 |
+| coder | Coder (Qwen) | Software engineering | qwen2.5-coder:1.5b |
+| naggon | Naggon | (private) | Sonnet 4.6 |
+
+---
+
+## Hindsight Banks
+
+| Bank | Owner | Purpose |
+|---|---|---|
+| `glacial` | All agents (read), Baldur (curates) | Glacial Gems company OS memory |
+| `leadership` | ops, finance, policy, strategy | Cross-leadership shared context |
+| `engineering` | main, coder | Technical decisions, code patterns |
+| `archivist` | Baldur only | Archivist private working memory |
+| `naggon` | Naggon only | Naggon private memory |
+| `skill-collection` | All agents (read), archivist (write) | Agent skills brain |
+
+No access controls enforced — separation is by convention only.

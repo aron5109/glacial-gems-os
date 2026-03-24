@@ -199,11 +199,11 @@ while(<$s>){print}
 | main | (unnamed) | Coordinator / router | Step 3.5 Flash (free) |
 | ops | Kjartan Már | Infrastructure & operations | Sonnet 4.6 |
 | finance | Alda Sofía | Accountant / budget tracking | Sonnet 4.6 |
-| archivist | Baldur | Records, docs, memory governance | Sonnet 4.6 |
+| archivist | Baldur | Records, docs, memory governance | Step 3.5 Flash (free) |
 | policy | Selma | Security & compliance | Sonnet 4.6 |
 | strategy | Rakel Jónsdóttir | Long-term planning & roadmap | Sonnet 4.6 |
 | coder | Coder (Qwen) | Software engineering | qwen2.5-coder:1.5b |
-| naggon | Naggon | (private) | Sonnet 4.6 |
+| naggon | Naggon | (private) | Step 3.5 Flash (free) |
 
 ---
 

@@ -2,18 +2,40 @@
 
 Last updated: 2026-03-24
 
+---
+
 ## Infrastructure
 
 - Everything runs on the **VPS** (vmi2978954)
 - Work computer does nothing — zero local execution
-- Workspace path: `/opt/repos/openclaw-workspace`
 - OpenClaw config: `~/.openclaw/`
 - Main config file: `~/.openclaw/openclaw.json`
 - Per-agent model config: `~/.openclaw/agents/<agent>/agent/models.json`
 - Gateway runs as: `systemctl --user openclaw-gateway.service` (Node.js)
-- Heartbeat logs: `/var/log/openclaw-deploy.log`
 - Gateway logs: `/tmp/openclaw/openclaw-YYYY-MM-DD.log`
+- Heartbeat logs: `/var/log/openclaw-deploy.log`
 - Ollama on VPS at port `11434`
+
+---
+
+## VPS Git Workflow
+
+All repos cloned at `/opt/repos/`. SSH key configured, no password needed.
+
+| Path | GitHub |
+|---|---|
+| `/opt/repos/openclaw-workspace` | `aron5109/openclaw-workspace` |
+| `/opt/repos/glacial-gems-os` | `aron5109/glacial-gems-os` |
+
+Standard workflow:
+```
+cd /opt/repos/<repo>
+git add <file>
+git commit -m "message"
+git push origin main
+```
+
+Git identity: Aron / aron5109@github.com
 
 ---
 
@@ -25,61 +47,102 @@ Last updated: 2026-03-24
 
 ---
 
-## Model Policy
+## Agent Model Policy
 
-### Main Agent
-- Primary: `openrouter/stepfun/step-3.5-flash:free` ✅ (switched 2026-03-24)
-- Fallback 1: `openrouter/nvidia/nemotron-3-super-120b-a12b:free`
-- Fallback 2: `ollama/llama3.2:latest` (local)
-- Config: `~/.openclaw/agents/main/agent/models.json`
+All agent primaries are set in `~/.openclaw/openclaw.json`.
+Per-agent `models.json` files only define available providers, not the primary.
+Agents without a `models.json` inherit everything from `openclaw.json`.
 
-### Leadership Agents (ops, finance, archivist, policy, strategy)
-- Primary: `anthropic/claude-sonnet-4-6`
-- Fallbacks: `google/gemini-2.5-pro` → `ollama/llama3.2:latest`
+| Agent | Primary Model | Type |
+|---|---|---|
+| main | `openrouter/stepfun/step-3.5-flash:free` | Free (OpenRouter) |
+| ops | `anthropic/claude-sonnet-4-6` | Paid |
+| finance | `anthropic/claude-sonnet-4-6` | Paid |
+| archivist | `anthropic/claude-sonnet-4-6` | Paid |
+| policy | `anthropic/claude-sonnet-4-6` | Paid |
+| strategy | `anthropic/claude-sonnet-4-6` | Paid |
+| naggon | `anthropic/claude-sonnet-4-6` | Paid |
+| coder | `ollama/qwen2.5-coder:1.5b` | Free (local) |
+| heartbeat | `ollama/llama3.2:latest` | Free (local) |
 
-### Coder Agent
-- Primary: `ollama/qwen2.5-coder:1.5b` (local-first, free, unlimited)
-- Fallbacks: `anthropic/claude-sonnet-4-6` → `google/gemini-2.5-pro` → `ollama/llama3.2:latest`
+### Main agent fallback chain
+1. `openrouter/stepfun/step-3.5-flash:free` (primary)
+2. `openrouter/nvidia/nemotron-3-super-120b-a12b:free`
+3. `ollama/llama3.2:latest` (local)
 
-### Heartbeat Agent
-- Model: `ollama/llama3.2:latest` (local, free, ~1hr interval)
-- Returns `HEARTBEAT_OK` unless anomaly detected
+### Leadership agents fallback chain
+1. `anthropic/claude-sonnet-4-6` (primary)
+2. `google/gemini-2.5-pro`
+3. `ollama/llama3.2:latest` (local)
+
+### Spawning agents
+You spawn agents by role — model is tied to the agent, not a slash command.
+Example: "spawn a sonnet agent with multiple coder agents helping it."
+Sonnet agents = leadership roles. Coder agents = ollama/qwen2.5-coder local.
 
 ---
 
-## Free Model Strategy (OpenRouter)
+## Anthropic Subscriptions
 
-Goal: **never touch the $8 OpenRouter credit balance** — emergency backup only.
+### Claude Pro — $20/month (personal)
+- Access via: claude.ai (web, desktop, mobile)
+- Models: Haiku 4.5, Sonnet 4.6, Opus 4.6
+- Includes: Claude Code, Cowork, web search, extended thinking
+- **Separate from API billing** — subscription ≠ API access
 
-### Free tier rotation (200 req/day per model)
-| Model ID | Context | Role |
+### Claude Code (included in Pro)
+- Terminal-based agentic coding tool
+- Uses Pro subscription quota — not API tokens
+- When quota runs out → do NOT enable pay-as-you-go, switch to OpenRouter free
+
+---
+
+## Token Strategy — Priority Order
+
+### claude.ai / Claude Code (subscription)
+1. Use off-peak hours (Iceland = UTC+0 = GMT):
+   - Before 12:00 and after 18:00 on weekdays → 2x limits (promotion ends 2026-03-28)
+   - 12:00–18:00 weekdays → normal limits
+2. Hit limits → stop, switch to OpenRouter free tier
+
+### OpenClaw agents (API)
+1. `openrouter/stepfun/step-3.5-flash:free` — main agent, always first
+2. `openrouter/nvidia/nemotron-3-super-120b-a12b:free` — auto fallback
+3. `ollama/llama3.2:latest` — local, free, unlimited
+4. `anthropic/claude-sonnet-4-6` — leadership agents only, costs tokens
+5. `ollama/qwen2.5-coder:1.5b` — coder agent, local, free
+6. OpenRouter $8 credit — **never touch, emergency only**
+
+---
+
+## Free Models Available (OpenRouter)
+
+Rate limit: 200 req/day per model, 20 req/min.
+Rotate across models to multiply daily budget.
+
+| Model ID | Context | Notes |
 |---|---|---|
-| `stepfun/step-3.5-flash:free` | 256K | Main agent primary |
-| `nvidia/nemotron-3-super-120b-a12b:free` | 262K | Main agent fallback 1 |
-| `arcee-ai/trinity-large-preview:free` | 131K | Available, not yet assigned |
+| `stepfun/step-3.5-flash:free` | 256K | Main agent primary, #1 ranked free |
+| `nvidia/nemotron-3-super-120b-a12b:free` | 262K | Coding, agents |
+| `arcee-ai/trinity-large-preview:free` | 131K | General |
 | `openrouter/free` | auto | Auto-picks best free model |
 
 OpenRouter base URL: `https://openrouter.ai/api/v1` (OpenAI-compatible)
 OpenRouter API key: stored in `~/.openclaw/agents/main/agent/models.json`
 
-### Cost philosophy
-1. Ollama local → free, unlimited, zero latency
-2. OpenRouter free tier → rotate across models, 200 req/day each
-3. Claude (claude.ai) → use off-peak for 2x limits (before 12:00 / after 18:00 Iceland time)
-4. OpenRouter $8 credit → **never touch unless everything else fails**
-
 ---
 
-## How to change a model
+## How to Change a Model
 
-Edit the relevant `~/.openclaw/agents/<agent>/agent/models.json` then restart:
+Edit `~/.openclaw/openclaw.json` for agent primaries, then restart:
 ```bash
 systemctl --user restart openclaw-gateway.service
+journalctl --user -u openclaw-gateway.service --no-pager | grep "agent model"
 ```
 
-Verify with:
+Always backup first:
 ```bash
-journalctl --user -u openclaw-gateway.service --no-pager | grep "agent model"
+cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.bak-$(date +%Y%m%d)
 ```
 
 ---
@@ -90,49 +153,3 @@ journalctl --user -u openclaw-gateway.service --no-pager | grep "agent model"
 |---|---|
 | `aron5109/openclaw-workspace` | Agent workspace, model policy, skills, heartbeat |
 | `aron5109/glacial-gems-os` | Company OS, documentation, SOPs (this repo) |
-
-
----
-
-## Anthropic Subscriptions
-
-### Claude Pro — $20/month (personal)
-- Access via: claude.ai (web, desktop, mobile)
-- Models available: Haiku 4.5, Sonnet 4.6, Opus 4.6
-- Usage: 5x Free tier, resets every 5 hours
-- Includes: Claude Code, Cowork, web search, extended thinking
-- **NOT the same as API access** — subscription and API are separate billing
-
-### Claude Code (included in Pro)
-- Terminal-based agentic coding tool
-- Runs on the work computer or VPS
-- Uses the Pro subscription quota — not API tokens
-- Install: `npm install -g @anthropic-ai/claude-code`
-- When Pro quota runs out, it prompts to switch to API pay-as-you-go — **don't do this**
-
----
-
-## Claude Token Strategy — Priority Order
-
-### For claude.ai / Claude Code (subscription)
-1. Use **off-peak hours** for heavy work (Iceland time):
-   - Before 12:00 (midnight–noon) → 2x limits *(promotion ends March 28, 2026)*
-   - After 18:00 (evening/night) → 2x limits
-   - 12:00–18:00 weekdays → normal limits only
-2. When hitting limits → **stop and switch to OpenRouter free tier**
-3. Never enable pay-as-you-go top-up on Claude Code
-
-### For OpenClaw agents (API)
-1. **Step 3.5 Flash free** (OpenRouter) → main agent, always first
-2. **Nemotron 3 Super free** (OpenRouter) → auto fallback
-3. **ollama/llama3.2** (local VPS) → free, unlimited, last free stop
-4. **claude-haiku-4-5** → manual call only, costs tokens, use sparingly
-5. **claude-sonnet-4-6** → manual call only, leadership agents, heavy tasks
-6. **OpenRouter $8 credit** → emergency only, never auto-triggered
-
-### Calling Haiku or Sonnet manually in OpenClaw
-- These are still configured in `openclaw.json` under model aliases
-- `haiku` → `anthropic/claude-haiku-4-5`
-- `sonnet` → `anthropic/claude-sonnet-4-6`
-- `sonnet46` → `anthropic/claude-sonnet-4-6`
-- They will **never trigger automatically** — only on explicit request

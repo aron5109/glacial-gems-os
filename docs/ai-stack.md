@@ -219,3 +219,58 @@ while(<$s>){print}
 | `skill-collection` | All agents (read), archivist (write) | Agent skills brain |
 
 No access controls enforced — separation is by convention only.
+
+---
+
+## Obsidian Knowledge Vault
+
+An agent-driven knowledge graph system built by Baldur (archivist).
+
+- Vault path: `/opt/obsidian-vault/`
+- Archivist workspace: `/root/.openclaw/workspace-archivist/obsidian/`
+- Notes: 74 markdown files (growing)
+
+### Vault Structure
+```
+00-inbox/       — incoming notes
+01-core/        — core company knowledge
+02-systems/     — infrastructure & system docs
+03-operations/  — ops procedures
+04-agents/      — agent definitions
+05-knowledge/   — schemas, taxonomies
+99-meta/        — MOCs, INDEX, entry points
+```
+
+### Access Model
+| Agent | Access |
+|---|---|
+| Baldur (archivist) | Read + Write |
+| All other agents | Read only (future) |
+
+### Key files
+- `99-meta/INDEX.md` — entry point to entire vault
+- `99-meta/Glacial OS MOC.md` — company OS map
+- `99-meta/OpenClaw System MOC.md` — OpenClaw map
+- `99-meta/Agent Architecture MOC.md` — agent map
+
+### Sync workflow
+Archivist writes to its workspace, then syncs to vault:
+```bash
+rsync -av /root/.openclaw/workspace-archivist/obsidian/ /opt/obsidian-vault/
+```
+
+### Source data (injected into archivist workspace)
+- `/root/.openclaw/workspace-archivist/source_docs` — glacial-gems-os docs
+- `/root/.openclaw/workspace-archivist/source_openclaw` — openclaw-workspace
+
+### Write helper CLI
+```bash
+obsidian-write "Title" "Content"
+# Writes to /opt/obsidian-vault/inbox/
+```
+
+### Next steps (planned)
+- Quartz web UI served via Caddy
+- Git sync for versioned vault
+- Hindsight → Obsidian memory bridge
+- Agent write API replacing CLI script

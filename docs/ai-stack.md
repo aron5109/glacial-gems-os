@@ -192,47 +192,6 @@ while(<$s>){print}
 
 ---
 
-## Hindsight Memory System
-
-- UI: http://185.230.138.60:5173/banks/glacial?view=data
-- Internal API: `http://hindsight-api:8888` (from VPS host docker exec)
-- External API: `http://127.0.0.1:6969` (from VPS host)
-- Docker network: `hindsight_hindsight-net`
-- Containers: `hindsight-api` (172.22.0.2 — may change on restart), `hindsight-db`
-- Banks: `glacial` (main shared), `naggon`, `skill-collection`
-
-### Sandbox → Hindsight access
-Agent sandboxes are on `hindsight_hindsight-net` (configured in `openclaw.json`).
-Sandbox has no curl/python3 — use perl socket with **hardcoded IP** (DNS does not resolve inside shell tool context):
-```perl
-perl -e '
-use Socket;
-socket(my $s, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die "socket: $!";
-connect($s, sockaddr_in(8888, inet_aton("172.22.0.2"))) or die "connect: $!";
-$s->autoflush(1);
-print $s "GET /v1/default/banks HTTP/1.0\r\nHost: hindsight-api\r\nConnection: close\r\n\r\n";
-while(<$s>){print}
-'
-```
-
-⚠️ If connection refused, hindsight-api IP may have changed. Check from VPS:
-```bash
-docker inspect hindsight-api | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['NetworkSettings']['Networks']['hindsight_hindsight-net']['IPAddress'])"
-```
-
-### openclaw.json sandbox config
-```json
-{
-  "mode": "non-main",
-  "docker": {
-    "network": "hindsight_hindsight-net",
-    "setupCommand": "apt-get install -y -q curl jq python3 2>/dev/null"
-  }
-}
-```
-
----
-
 ## Agent Roster
 
 | Agent ID | Name | Role | Model |

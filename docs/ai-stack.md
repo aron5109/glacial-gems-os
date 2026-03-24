@@ -90,3 +90,49 @@ journalctl --user -u openclaw-gateway.service --no-pager | grep "agent model"
 |---|---|
 | `aron5109/openclaw-workspace` | Agent workspace, model policy, skills, heartbeat |
 | `aron5109/glacial-gems-os` | Company OS, documentation, SOPs (this repo) |
+
+
+---
+
+## Anthropic Subscriptions
+
+### Claude Pro — $20/month (personal)
+- Access via: claude.ai (web, desktop, mobile)
+- Models available: Haiku 4.5, Sonnet 4.6, Opus 4.6
+- Usage: 5x Free tier, resets every 5 hours
+- Includes: Claude Code, Cowork, web search, extended thinking
+- **NOT the same as API access** — subscription and API are separate billing
+
+### Claude Code (included in Pro)
+- Terminal-based agentic coding tool
+- Runs on the work computer or VPS
+- Uses the Pro subscription quota — not API tokens
+- Install: `npm install -g @anthropic-ai/claude-code`
+- When Pro quota runs out, it prompts to switch to API pay-as-you-go — **don't do this**
+
+---
+
+## Claude Token Strategy — Priority Order
+
+### For claude.ai / Claude Code (subscription)
+1. Use **off-peak hours** for heavy work (Iceland time):
+   - Before 12:00 (midnight–noon) → 2x limits *(promotion ends March 28, 2026)*
+   - After 18:00 (evening/night) → 2x limits
+   - 12:00–18:00 weekdays → normal limits only
+2. When hitting limits → **stop and switch to OpenRouter free tier**
+3. Never enable pay-as-you-go top-up on Claude Code
+
+### For OpenClaw agents (API)
+1. **Step 3.5 Flash free** (OpenRouter) → main agent, always first
+2. **Nemotron 3 Super free** (OpenRouter) → auto fallback
+3. **ollama/llama3.2** (local VPS) → free, unlimited, last free stop
+4. **claude-haiku-4-5** → manual call only, costs tokens, use sparingly
+5. **claude-sonnet-4-6** → manual call only, leadership agents, heavy tasks
+6. **OpenRouter $8 credit** → emergency only, never auto-triggered
+
+### Calling Haiku or Sonnet manually in OpenClaw
+- These are still configured in `openclaw.json` under model aliases
+- `haiku` → `anthropic/claude-haiku-4-5`
+- `sonnet` → `anthropic/claude-sonnet-4-6`
+- `sonnet46` → `anthropic/claude-sonnet-4-6`
+- They will **never trigger automatically** — only on explicit request
